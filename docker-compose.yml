@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: skillsync-postgres
+    environment:
+      POSTGRES_DB: skillsync
+      POSTGRES_USER: skillsync_user
+      POSTGRES_PASSWORD: skillsync_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - skillsync-network
+
+  # Express Backend
+  express-backend:
+    build:
+      context: ./backend/express
+      dockerfile: Dockerfile
+    container_name: skillsync-express
+    environment:
+      - NODE_ENV=production
+      - EXPRESS_PORT=3001
+      - FRONTEND_URL=http://localhost:3000
+      - SESSION_SECRET=your-super-secret-session-key
+      - DATABASE_URL=postgresql://skillsync_user:skillsync_password@postgres:5432/skillsync
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - GITHUB_CALLBACK_URL=http://localhost:3001/api/auth/github/callback
+      - FASTAPI_URL=http://fastapi-backend:8000
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+    networks:
+      - skillsync-network
+    volumes:
+      - express_uploads:/app/uploads
+
+  # FastAPI Backend
+  fastapi-backend:
+    build:
+      context: ./backend/fastapi
+      dockerfile: Dockerfile
+    container_name: skillsync-fastapi
+    environment:
+      - ENVIRONMENT=production
+      - FASTAPI_PORT=8000
+      - FRONTEND_URL=http://localhost:3000
+      - EXPRESS_URL=http://express-backend:3001
+      - DATABASE_URL=postgresql://skillsync_user:skillsync_password@postgres:5432/skillsync
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GROQ_MODEL=${GROQ_MODEL:-llama3-8b-8192}
+      - SECRET_KEY=your-super-secret-key
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    networks:
+      - skillsync-network
+    volumes:
+      - fastapi_uploads:/app/uploads
+
+  # Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: skillsync-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - express-backend
+      - fastapi-backend
+    networks:
+      - skillsync-network
+    environment:
+      - VITE_EXPRESS_API_URL=http://localhost:3001
+      - VITE_FASTAPI_URL=http://localhost:8000
+
+volumes:
+  postgres_data:
+  express_uploads:
+  fastapi_uploads:
+
+networks:
+  skillsync-network:
+    driver: bridge 

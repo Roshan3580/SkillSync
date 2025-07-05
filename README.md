@@ -1,73 +1,59 @@
-# Welcome to your Lovable project
+# SkillSync - Developer Career Tool
 
-## Project info
+![Skill Sync Dashboard Screenshot](public/screenshot.png)
 
-**URL**: https://lovable.dev/projects/37353bbd-e947-4a96-afe9-09d57deb4fba
+A lightweight career tool for developers that analyzes resumes, tracks progress from GitHub and LeetCode, and provides AI-powered career path suggestions.
 
-## How can I edit this code?
+## 🚀 Features
 
-There are several ways of editing your application.
+### Core Features
+- **Resume Analyzer**: Upload PDF resumes and extract skills, experience, and education using NLP
+- **Career Path Suggestions**: AI-powered recommendations based on skills and experience
+- **Progress Dashboard**: Track GitHub and LeetCode statistics with visual charts
+- **GitHub Integration**: OAuth authentication and repository data fetching
+- **LeetCode Integration**: Problem-solving statistics and contest performance
 
-**Use Lovable**
+### Tech Stack
+- **Frontend**: React + TypeScript + TailwindCSS + Recharts
+- **Express Backend**: Node.js + Express (OAuth, dashboard data, API routes)
+- **FastAPI Backend**: Python + FastAPI (resume analysis, AI integration)
+- **Database**: PostgreSQL
+- **Deployment**: Docker + Railway/Render (backend) + Vercel (frontend)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/37353bbd-e947-4a96-afe9-09d57deb4fba) and start prompting.
+## 📁 Project Structure
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+skillsync/
+├── src/                    # Frontend React app
+│   ├── components/        # UI components
+│   │   ├── components/        # UI components
+│   │   ├── pages/            # Page components
+│   │   └── hooks/            # Custom hooks
+│   ├── backend/
+│   │   ├── express/          # Node.js + Express backend
+│   │   │   ├── src/
+│   │   │   │   ├── routes/   # API routes
+│   │   │   │   ├── services/ # Business logic
+│   │   │   │   └── config/   # Configuration
+│   │   │   └── package.json
+│   │   └── fastapi/          # Python + FastAPI backend
+│   │       ├── app/
+│   │       │   ├── routers/  # API endpoints
+│   │       │   ├── services/ # Business logic
+│   │       │   └── models/   # Pydantic models
+│   │       └── requirements.txt
+│   ├── db/
+│   │   └── schema.sql        # PostgreSQL schema
+│   └── docker-compose.yml    # Docker orchestration
+└── README.md
 ```
 
-**Edit a file directly in GitHub**
+## 🔮 Roadmap
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/37353bbd-e947-4a96-afe9-09d57deb4fba) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- [ ] Real-time notifications
+- [ ] Advanced analytics dashboard
+- [ ] Integration with more platforms (LinkedIn, Stack Overflow)
+- [ ] Mobile app development
+- [ ] Advanced AI career recommendations
+- [ ] Resume template generator
+- [ ] Interview preparation tools

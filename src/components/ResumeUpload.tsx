@@ -1,12 +1,16 @@
 import React, { useState, useCallback } from 'react';
-import { Upload, FileText, CheckCircle, X, TrendingUp } from 'lucide-react';
+import { Upload, FileText, CheckCircle, X, TrendingUp, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { apiService, ResumeAnalysis } from '@/lib/api';
+import { toast } from 'sonner';
 
 const ResumeUpload = () => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState<ResumeAnalysis | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -36,17 +40,30 @@ const ResumeUpload = () => {
     }
   };
 
-  const analyzeResume = () => {
+  const analyzeResume = async () => {
+    if (!uploadedFile) return;
+    
     setIsAnalyzing(true);
-    // Simulate analysis
-    setTimeout(() => {
+    setError(null);
+    
+    try {
+      const result = await apiService.uploadResume(uploadedFile);
+      setAnalysis(result.analysis);
+      toast.success('Resume analyzed successfully!');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to analyze resume';
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
       setIsAnalyzing(false);
-    }, 3000);
+    }
   };
 
   const removeFile = () => {
     setUploadedFile(null);
     setIsAnalyzing(false);
+    setAnalysis(null);
+    setError(null);
   };
 
   return (
@@ -127,31 +144,137 @@ const ResumeUpload = () => {
           )}
         </Card>
 
-        {/* Analysis Results Preview */}
-        <div className="mt-12 grid md:grid-cols-2 gap-8">
-          <Card className="p-6">
-            <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <CheckCircle size={20} className="text-emerald-600" />
-              Extracted Skills
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {['JavaScript', 'React', 'Node.js', 'Python', 'SQL', 'AWS'].map((skill) => (
-                <span key={skill} className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm">
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </Card>
+        {/* Analysis Results */}
+        {analysis && (
+          <div className="mt-12 space-y-8">
+            {/* Skills and Experience Row */}
+            <div className="grid md:grid-cols-2 gap-8">
+              <Card className="p-6">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <CheckCircle size={20} className="text-emerald-600" />
+                  Extracted Skills
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {analysis.skills.length > 0 ? (
+                    analysis.skills.map((skill) => (
+                      <span key={skill} className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm">
+                        {skill}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="text-slate-500">No skills detected</p>
+                  )}
+                </div>
+              </Card>
 
-          <Card className="p-6">
-            <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <TrendingUp size={20} className="text-blue-600" />
-              Experience Level
-            </h3>
-            <p className="text-slate-600 mb-2">Software Developer</p>
-            <p className="text-2xl font-bold text-slate-900">3+ Years</p>
-          </Card>
-        </div>
+              <Card className="p-6">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <TrendingUp size={20} className="text-blue-600" />
+                  Experience Level
+                </h3>
+                <p className="text-slate-600 mb-2">
+                  {analysis.job_titles.length > 0 ? analysis.job_titles[0] : 'Developer'}
+                </p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {analysis.experience_years > 0 ? `${analysis.experience_years}+ Years` : 'Entry Level'}
+                </p>
+              </Card>
+            </div>
+
+            {/* Job Titles and Education Row */}
+            <div className="grid md:grid-cols-2 gap-8">
+              <Card className="p-6">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <FileText size={20} className="text-purple-600" />
+                  Job Titles
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {analysis.job_titles.length > 0 ? (
+                    analysis.job_titles.map((title) => (
+                      <span key={title} className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
+                        {title}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="text-slate-500">No job titles detected</p>
+                  )}
+                </div>
+              </Card>
+
+              <Card className="p-6">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <FileText size={20} className="text-indigo-600" />
+                  Education
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {analysis.education.length > 0 ? (
+                    analysis.education.map((edu) => (
+                      <span key={edu} className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm">
+                        {edu}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="text-slate-500">No education detected</p>
+                  )}
+                </div>
+              </Card>
+            </div>
+
+            {/* Programming Languages and Certifications Row */}
+            <div className="grid md:grid-cols-2 gap-8">
+              <Card className="p-6">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <FileText size={20} className="text-orange-600" />
+                  Programming Languages
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {analysis.languages.length > 0 ? (
+                    analysis.languages.map((lang) => (
+                      <span key={lang} className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">
+                        {lang}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="text-slate-500">No languages detected</p>
+                  )}
+                </div>
+              </Card>
+
+              <Card className="p-6">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <FileText size={20} className="text-teal-600" />
+                  Certifications
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {analysis.certifications.length > 0 ? (
+                    analysis.certifications.map((cert) => (
+                      <span key={cert} className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm">
+                        {cert}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="text-slate-500">No certifications detected</p>
+                  )}
+                </div>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {/* Error Display */}
+        {error && (
+          <div className="mt-8">
+            <Card className="p-6 border-red-200 bg-red-50">
+              <div className="flex items-center gap-3">
+                <AlertCircle size={20} className="text-red-600" />
+                <div>
+                  <h3 className="font-semibold text-red-800">Analysis Error</h3>
+                  <p className="text-red-700">{error}</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
