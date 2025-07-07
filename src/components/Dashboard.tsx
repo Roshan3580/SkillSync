@@ -14,7 +14,12 @@ function timeAgo(dateString: string) {
   return `${Math.floor(diff / 86400)} days ago`;
 }
 
-const Dashboard = () => {
+interface DashboardProps {
+  onGithubData?: (data: any) => void;
+  onLeetcodeData?: (data: any) => void;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ onGithubData, onLeetcodeData }) => {
   const [username, setUsername] = useState('');
   const [inputValue, setInputValue] = useState('');
   const [githubData, setGithubData] = useState<any | null>(null);
@@ -36,6 +41,7 @@ const Dashboard = () => {
       const data = await res.json();
       setGithubData(data);
       setUsername(user);
+      if (onGithubData) onGithubData(data);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch GitHub data');
     } finally {
@@ -60,6 +66,7 @@ const Dashboard = () => {
       const data = await res.json();
       setLeetcodeData(data);
       setLeetcodeUser(user);
+      if (onLeetcodeData) onLeetcodeData(data);
     } catch (err: any) {
       setLeetcodeError(err.message || 'Failed to fetch LeetCode data');
     } finally {

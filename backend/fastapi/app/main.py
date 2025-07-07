@@ -8,7 +8,7 @@ import os
 from app.routers import resume, career_paths, health
 
 # Load environment variables
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), '../.env'))
 
 app = FastAPI(
     title="SkillSync FastAPI Backend",

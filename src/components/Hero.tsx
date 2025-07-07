@@ -1,9 +1,17 @@
-
 import React from 'react';
 import { ArrowRight, Code, TrendingUp, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Hero = () => {
+  // Helper for smooth scroll
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.location.hash = `#${id}`;
+    }
+  };
   return (
     <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -18,18 +26,11 @@ const Hero = () => {
             Analyze your resume, discover personalized career paths, and track your coding progress 
             across GitHub and LeetCode—all in one powerful dashboard.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 text-lg rounded-lg transition-all transform hover:scale-105">
-              Get Started
-              <ArrowRight className="ml-2" size={20} />
-            </Button>
-            <Button variant="outline" className="border-slate-600 text-slate-300 hover:text-white hover:bg-slate-800 px-8 py-3 text-lg rounded-lg transition-all">
-              View Demo
-            </Button>
-          </div>
-          
           <div className="grid md:grid-cols-3 gap-8 mt-16">
-            <div className="bg-slate-800/50 backdrop-blur-sm p-8 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition-all">
+            <div
+              className="bg-slate-800/50 backdrop-blur-sm p-8 rounded-xl border border-slate-700 hover:border-emerald-500/50 transition-all cursor-pointer"
+              onClick={() => scrollToSection('resume')}
+            >
               <div className="bg-emerald-600/20 w-16 h-16 rounded-lg flex items-center justify-center mb-4 mx-auto">
                 <Code size={24} className="text-emerald-400" />
               </div>
@@ -38,8 +39,10 @@ const Hero = () => {
                 Upload your resume and get instant skill extraction and analysis powered by advanced NLP
               </p>
             </div>
-            
-            <div className="bg-slate-800/50 backdrop-blur-sm p-8 rounded-xl border border-slate-700 hover:border-blue-500/50 transition-all">
+            <div
+              className="bg-slate-800/50 backdrop-blur-sm p-8 rounded-xl border border-slate-700 hover:border-blue-500/50 transition-all cursor-pointer"
+              onClick={() => scrollToSection('career')}
+            >
               <div className="bg-blue-600/20 w-16 h-16 rounded-lg flex items-center justify-center mb-4 mx-auto">
                 <TrendingUp size={24} className="text-blue-400" />
               </div>
@@ -48,8 +51,10 @@ const Hero = () => {
                 Get personalized career recommendations based on your skills and experience
               </p>
             </div>
-            
-            <div className="bg-slate-800/50 backdrop-blur-sm p-8 rounded-xl border border-slate-700 hover:border-purple-500/50 transition-all">
+            <div
+              className="bg-slate-800/50 backdrop-blur-sm p-8 rounded-xl border border-slate-700 hover:border-purple-500/50 transition-all cursor-pointer"
+              onClick={() => scrollToSection('dashboard')}
+            >
               <div className="bg-purple-600/20 w-16 h-16 rounded-lg flex items-center justify-center mb-4 mx-auto">
                 <BarChart3 size={24} className="text-purple-400" />
               </div>

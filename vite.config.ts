@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     proxy: {
+      '/api/career': 'http://localhost:8000',
       '/api': 'http://localhost:3001'
     }
   },

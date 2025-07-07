@@ -5,7 +5,11 @@ import { Card } from '@/components/ui/card';
 import { apiService, ResumeAnalysis } from '@/lib/api';
 import { toast } from 'sonner';
 
-const ResumeUpload = () => {
+interface ResumeUploadProps {
+  onAnalysis?: (analysis: ResumeAnalysis) => void;
+}
+
+const ResumeUpload: React.FC<ResumeUploadProps> = ({ onAnalysis }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -50,6 +54,7 @@ const ResumeUpload = () => {
     try {
       const result = await apiService.uploadResume(uploadedFile);
       setAnalysis(result.analysis);
+      if (onAnalysis) onAnalysis(result.analysis);
       toast.success('Resume analyzed successfully!');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to analyze resume';

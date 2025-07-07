@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from typing import List
 import os
 
@@ -8,23 +8,32 @@ from app.models.career import CareerPath, CareerSuggestionRequest
 router = APIRouter()
 
 @router.post("/suggest", response_model=List[CareerPath])
-async def get_career_suggestions(request: CareerSuggestionRequest):
+async def get_career_suggestions(request: Request):
     """
-    Get AI-powered career path suggestions based on skills and experience
+    Get AI-powered career path suggestions based on resume, GitHub, and LeetCode data (if provided)
     """
     try:
+        data = await request.json()
+        resume = data.get("resume")
+        github = data.get("github")
+        leetcode = data.get("leetcode")
+
+        # Defensive: If resume is missing or incomplete, return error
+        if not resume or not resume.get("skills") or not resume.get("experience_years"):
+            raise HTTPException(status_code=400, detail="Resume analysis data is required (skills, experience_years)")
+
         ai_service = AIService()
-        
-        # Get career suggestions from external AI API
         suggestions = await ai_service.get_career_suggestions(
-            skills=request.skills,
-            experience_years=request.experience_years,
-            current_role=request.current_role,
-            interests=request.interests
+            skills=resume.get("skills", []),
+            experience_years=resume.get("experience_years", 0),
+            current_role=resume.get("job_titles", [None])[0] if resume.get("job_titles") else None,
+            interests=None,  # Optionally map from resume or frontend
+            github_data=github,
+            leetcode_data=leetcode
         )
-        
         return suggestions
-        
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error getting career suggestions: {str(e)}")
 

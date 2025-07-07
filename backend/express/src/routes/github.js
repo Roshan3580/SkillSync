@@ -105,8 +105,6 @@ router.get('/:username/summary', async (req, res) => {
       .slice(0, 3)
       .map(([lang]) => lang);
 
-    // Commits per month (last year, for chart)
-    // We'll use the first 5 repos for demo (GitHub API is rate-limited for commit stats)
     let commits_per_month = [];
     let total_commits = 0;
     const monthMap = {};
