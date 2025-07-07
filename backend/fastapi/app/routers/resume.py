@@ -5,7 +5,7 @@ import os
 import uuid
 from datetime import datetime
 
-from app.services.resume_parser import ResumeParser
+from app.services.ai_service import AIService
 from app.models.resume import ResumeAnalysis, ResumeUploadResponse
 
 router = APIRouter()
@@ -13,7 +13,7 @@ router = APIRouter()
 @router.post("/upload", response_model=ResumeUploadResponse)
 async def upload_resume(file: UploadFile = File(...)):
     """
-    Upload and analyze a resume PDF
+    Upload and analyze a resume PDF using AI
     """
     try:
         # Validate file type
@@ -34,9 +34,16 @@ async def upload_resume(file: UploadFile = File(...)):
             content = await file.read()
             buffer.write(content)
         
-        # Parse resume
-        parser = ResumeParser()
-        analysis_data = await parser.parse_resume(file_path)
+        # Extract text from PDF
+        import pdfplumber
+        resume_text = ""
+        with pdfplumber.open(file_path) as pdf:
+            for page in pdf.pages:
+                resume_text += page.extract_text() or ""
+        
+        # Analyze with AI
+        ai_service = AIService()
+        analysis_data = await ai_service.analyze_resume_with_ai(resume_text)
         
         # Convert dictionary to ResumeAnalysis model
         analysis = ResumeAnalysis(**analysis_data)
@@ -54,39 +61,4 @@ async def upload_resume(file: UploadFile = File(...)):
         import traceback
         print(f"Error processing resume: {str(e)}")
         print(f"Traceback: {traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail=f"Error processing resume: {str(e)}")
-
-@router.get("/analysis/{file_id}", response_model=ResumeAnalysis)
-async def get_resume_analysis(file_id: str):
-    """
-    Get resume analysis by file ID
-    """
-    try:
-        # TODO: Fetch analysis from database
-        # For now, return mock data
-        analysis = ResumeAnalysis(
-            skills=["Python", "JavaScript", "React", "Node.js"],
-            job_titles=["Software Engineer", "Full Stack Developer"],
-            education=["Bachelor's in Computer Science"],
-            experience_years=3,
-            languages=["English", "Spanish"],
-            certifications=["AWS Certified Developer"]
-        )
-        
-        return analysis
-        
-    except Exception as e:
-        raise HTTPException(status_code=404, detail="Analysis not found")
-
-@router.get("/skills", response_model=List[str])
-async def get_extracted_skills(file_id: str):
-    """
-    Get extracted skills from resume
-    """
-    try:
-        # TODO: Fetch skills from database
-        skills = ["Python", "JavaScript", "React", "Node.js", "PostgreSQL"]
-        return skills
-        
-    except Exception as e:
-        raise HTTPException(status_code=404, detail="Skills not found") 
+        raise HTTPException(status_code=500, detail=f"Error processing resume: {str(e)}") 

@@ -181,3 +181,50 @@ class AIService:
             ))
         
         return suggestions[:3]  # Return top 3 suggestions 
+
+    async def analyze_resume_with_ai(self, resume_text: str) -> dict:
+        """
+        Analyze resume text using Groq API and extract structured information.
+        """
+        prompt = f"""
+        You are a resume analysis assistant. Given the following resume text, extract the following information and return it as a JSON object with these keys:
+        - skills (list of strings)
+        - job_titles (list of strings)
+        - education (list of strings)
+        - experience_years (integer)
+        
+        Resume Text:
+        '''
+        {resume_text}
+        '''
+        
+        Respond ONLY with a valid JSON object with the above keys and no extra commentary.
+        """
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    self.api_url,
+                    json={
+                        "model": self.model,
+                        "messages": [
+                            {"role": "system", "content": "You are a helpful assistant."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        "temperature": 0.2,
+                        "max_tokens": 800
+                    },
+                    headers={
+                        "Authorization": f"Bearer {self.api_key}",
+                        "Content-Type": "application/json"
+                    },
+                    timeout=30.0
+                )
+                if response.status_code == 200:
+                    data = response.json()
+                    content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    import json
+                    return json.loads(content)
+                else:
+                    raise Exception(f"Groq API error: {response.status_code} {response.text}")
+        except Exception as e:
+            raise Exception(f"AI resume analysis failed: {str(e)}") 

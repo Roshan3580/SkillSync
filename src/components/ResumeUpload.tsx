@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Upload, FileText, CheckCircle, X, TrendingUp, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -11,6 +11,7 @@ const ResumeUpload = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<ResumeAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -99,12 +100,15 @@ const ResumeUpload = () => {
                 onChange={handleFileSelect}
                 className="hidden"
                 id="resume-upload"
+                ref={inputRef}
               />
-              <label htmlFor="resume-upload">
-                <Button className="bg-emerald-600 hover:bg-emerald-700 cursor-pointer">
-                  Choose File
-                </Button>
-              </label>
+              <Button
+                className="bg-emerald-600 hover:bg-emerald-700 cursor-pointer"
+                onClick={() => inputRef.current && inputRef.current.click()}
+                type="button"
+              >
+                Choose File
+              </Button>
             </div>
           ) : (
             <div className="space-y-6">
@@ -152,7 +156,7 @@ const ResumeUpload = () => {
               <Card className="p-6">
                 <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
                   <CheckCircle size={20} className="text-emerald-600" />
-                  Extracted Skills
+                  Skills
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {analysis.skills.length > 0 ? (
@@ -215,45 +219,6 @@ const ResumeUpload = () => {
                     ))
                   ) : (
                     <p className="text-slate-500">No education detected</p>
-                  )}
-                </div>
-              </Card>
-            </div>
-
-            {/* Programming Languages and Certifications Row */}
-            <div className="grid md:grid-cols-2 gap-8">
-              <Card className="p-6">
-                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                  <FileText size={20} className="text-orange-600" />
-                  Programming Languages
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {analysis.languages.length > 0 ? (
-                    analysis.languages.map((lang) => (
-                      <span key={lang} className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm">
-                        {lang}
-                      </span>
-                    ))
-                  ) : (
-                    <p className="text-slate-500">No languages detected</p>
-                  )}
-                </div>
-              </Card>
-
-              <Card className="p-6">
-                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                  <FileText size={20} className="text-teal-600" />
-                  Certifications
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {analysis.certifications.length > 0 ? (
-                    analysis.certifications.map((cert) => (
-                      <span key={cert} className="bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-sm">
-                        {cert}
-                      </span>
-                    ))
-                  ) : (
-                    <p className="text-slate-500">No certifications detected</p>
                   )}
                 </div>
               </Card>

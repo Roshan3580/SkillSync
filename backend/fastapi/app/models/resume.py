@@ -7,8 +7,6 @@ class ResumeAnalysis(BaseModel):
     job_titles: List[str]
     education: List[str]
     experience_years: int
-    languages: List[str]
-    certifications: List[str]
     
     class Config:
         from_attributes = True
