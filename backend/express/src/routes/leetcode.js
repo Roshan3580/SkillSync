@@ -104,4 +104,70 @@ router.get('/submissions', requireAuth, async (req, res) => {
   }
 });
 
+// Public summary endpoint for dashboard
+router.get('/:username/summary', async (req, res) => {
+  const { username } = req.params;
+  try {
+    // Use unofficial API for LeetCode stats
+    const apiUrl = `https://leetcode-stats-api.herokuapp.com/${username}`;
+    const response = await axios.get(apiUrl);
+    const data = response.data;
+    if (!data || data.status === 'error') {
+      return res.status(404).json({ error: 'LeetCode user not found or API error' });
+    }
+
+    // Fetch recent submissions from LeetCode GraphQL
+    let recent_problems = [];
+    try {
+      const graphqlRes = await axios.post(
+        'https://leetcode.com/graphql',
+        {
+          query: `
+            query recentAcSubmissions($username: String!) {
+              recentAcSubmissionList(username: $username, limit: 10) {
+                id
+                title
+                titleSlug
+                timestamp
+              }
+            }
+          `,
+          variables: { username }
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Referer': `https://leetcode.com/${username}/`,
+            'Origin': 'https://leetcode.com'
+          }
+        }
+      );
+      const acList = graphqlRes.data.data && graphqlRes.data.data.recentAcSubmissionList;
+      if (Array.isArray(acList)) {
+        recent_problems = acList.slice(0, 5).map(item => ({
+          title: item.title,
+          solved_at: new Date(parseInt(item.timestamp, 10) * 1000).toISOString()
+        }));
+      }
+    } catch (err) {
+      // If GraphQL fails, just leave recent_problems empty
+    }
+
+    res.json({
+      username: data.username,
+      total_solved: data.totalSolved,
+      easy_solved: data.easySolved,
+      total_easy: data.totalEasy,
+      medium_solved: data.mediumSolved,
+      total_medium: data.totalMedium,
+      hard_solved: data.hardSolved,
+      total_hard: data.totalHard,
+      current_streak: data.streak || 0,
+      recent_problems
+    });
+  } catch (error) {
+    res.status(404).json({ error: 'LeetCode user not found or API error' });
+  }
+});
+
 module.exports = router; 
