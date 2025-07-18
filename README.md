@@ -4,7 +4,7 @@
 
 A lightweight career tool for developers that analyzes resumes, tracks progress from GitHub and LeetCode, and provides AI-powered career path suggestions.
 
-## 🚀 Features
+## Features
 
 ### Core Features
 - **Resume Analyzer**: Upload PDF resumes and extract skills, experience, and education using NLP
@@ -20,7 +20,7 @@ A lightweight career tool for developers that analyzes resumes, tracks progress 
 - **Database**: PostgreSQL
 - **Deployment**: Docker + Railway/Render (backend) + Vercel (frontend)
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 skillsync/
@@ -48,7 +48,7 @@ skillsync/
 └── README.md
 ```
 
-## 🔮 Roadmap
+## Roadmap
 
 - [ ] Real-time notifications
 - [ ] Advanced analytics dashboard
